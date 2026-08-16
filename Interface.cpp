@@ -108,8 +108,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 {
 	
 	
+	RegistrarApontamento(hInstance);
 
-	RegistrarProducao(hInstance);
+if (!RegistrarProducao(hInstance))
+{
+    return 1;
+}
+
+if (!RegistrarApontamento(hInstance))
+{
+    return 1;
+}
+
+
 	
   hBackground = (HBITMAP)LoadImage(
     NULL,
