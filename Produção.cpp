@@ -1,11 +1,15 @@
 #include <iostream>
 #include <windows.h>
 
+#include "Janelas.h"
+#include "Apontamento.h" 
+
 #define IDC_PTB1_BUTTON 1001
 #define IDC_PTB2_BUTTON 1002
 #define IDC_PTB3_BUTTON 1003
 #define IDC_PTB4_BUTTON 1004
 #define IDC_PTB5_BUTTON 1005
+#define APOINTMENT_CLASS L"APONTAMENTOCLASS"
 
 const wchar_t PRODUCTION_CLASS[] = L"Janela da produção";
 
@@ -16,6 +20,63 @@ LRESULT CALLBACK ProdProc(
     WPARAM wParam,
     LPARAM lParam
 );
+
+LRESULT CALLBACK ApontamentoProc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+);
+
+bool RegistrarApontamento(HINSTANCE hInstance)
+{
+    WNDCLASS wc = {};
+
+    wc.lpfnWndProc   = ApontamentoProc;
+    wc.hInstance     = hInstance;
+    wc.lpszClassName = L"APONTAMENTOCLASS";
+    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+
+    if (RegisterClass(&wc) == 0)
+    {
+        DWORD erro = GetLastError();
+
+        if (erro == ERROR_CLASS_ALREADY_EXISTS)
+        {
+            return true;
+        }
+
+        MessageBox(
+            NULL,
+            L"RegisterClass da janela Apontamento falhou!",
+            L"Erro",
+            MB_OK | MB_ICONERROR
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+
+
+LRESULT CALLBACK ApontamentoProc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+)
+{
+    switch (uMsg)
+    {
+        case WM_DESTROY:
+            return 0;
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
 
 
 // REGISTRA A CLASSE
@@ -50,6 +111,8 @@ bool RegistrarProducao(HINSTANCE hInstance)
 
     return true;
 }
+
+
 
 
 // ABRE A JANELA
@@ -106,7 +169,8 @@ LRESULT CALLBACK ProdProc(
     UINT uMsg,
     WPARAM wParam,
     LPARAM lParam
-)
+)	
+
 {
     switch (uMsg)
     {
@@ -131,7 +195,7 @@ LRESULT CALLBACK ProdProc(
             return 0;
 		}
 		
-		case WM_CREATE:
+		case WM_CREATE: {
 	      CreateWindowEx(
                 0,
                 L"BUTTON",
@@ -206,14 +270,90 @@ LRESULT CALLBACK ProdProc(
                 (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
                 NULL
             );
-	
-             case WM_COMMAND:{
+			
+			 return 0;
+	}
+             case WM_COMMAND :{
 				 
+				 switch(LOWORD(wParam)){
+					 
+					case IDC_PTB1_BUTTON:
+                {
+                    HINSTANCE hInstance =
+                        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
+
+                    HWND hwndApontamento = CreateWindowEx(
+                        0,
+                        APOINTMENT_CLASS,
+                        L"APONTAMENTO - Produção",
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT,
+                        CW_USEDEFAULT,
+                        860,
+                        600,
+                        NULL,
+                        NULL,
+                        hInstance,
+                        NULL
+						
+                    );
+
+                    if (hwndApontamento == NULL)
+                    {
+                        DWORD erro = GetLastError();
+
+                        wchar_t mensagem[256];
+
+                        wsprintf(
+                            mensagem,
+                            L"CreateWindowEx falhou!\n\n"
+                            L"Código do erro: %lu",
+                            erro
+                        );
+
+                        MessageBox(
+                            NULL,
+                            mensagem,
+                            L"Erro",
+                            MB_OK | MB_ICONERROR
+                        );
+
+                        return 0;
+                    }
+
+                    ShowWindow(hwndApontamento, SW_SHOW);
+                    UpdateWindow(hwndApontamento);
+
+                    break;
+                }
+				 
+				 /*
+				 case IDC_PTB2_BUTTON:
+					    AbrirOrdens((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+						break;
+				 
+				 
+				 case IDC_PTB3_BUTTON:
+					    AbrirMateriaPrima((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+						break;
+				 
+				 case IDC_PTB4_BUTTON:
+					    Removedor((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+						break;
+						
+						case IDC_PTB5_BUTTON:
+					    Consultas((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+						break; */
+						
+						return 0;
+				 } 
 			 }
 			      
 	
 			return 0;
     }
+	
+	
 	
 	  
 
