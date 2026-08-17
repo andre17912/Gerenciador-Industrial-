@@ -3,13 +3,17 @@
 
 #include "Janelas.h"
 #include "Apontamento.h" 
+#include "Ordens.h"
+#include "Material.h"
 
 #define IDC_PTB1_BUTTON 1001
 #define IDC_PTB2_BUTTON 1002
-#define IDC_PTB3_BUTTON 1003
+#define IDC_PTB3_BUTTON 1020
 #define IDC_PTB4_BUTTON 1004
 #define IDC_PTB5_BUTTON 1005
 #define APOINTMENT_CLASS L"APONTAMENTOCLASS"
+#define ORDENS_CLASS L"ORDENS_CLASS"
+#define MATERIAL_CLASS L"MATERIAL_CLASS"
 
 const wchar_t PRODUCTION_CLASS[] = L"Janela da produção";
 
@@ -60,7 +64,21 @@ bool RegistrarApontamento(HINSTANCE hInstance)
     return true;
 }
 
+LRESULT CALLBACK MaterialProc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+)
+{
+    switch (uMsg)
+    {
+        case WM_DESTROY:
+            return 0;
+    }
 
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
 
 LRESULT CALLBACK ApontamentoProc(
     HWND hwnd,
@@ -78,6 +96,85 @@ LRESULT CALLBACK ApontamentoProc(
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+LRESULT CALLBACK OrdensProc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+)
+{
+    switch (uMsg)
+    {
+        case WM_DESTROY:
+            return 0;
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+bool RegistraMaterial(HINSTANCE hInstance)
+{
+    WNDCLASS wMaterial = {};
+
+    wMaterial.lpfnWndProc   = MaterialProc;
+    wMaterial.hInstance     = hInstance;
+    wMaterial.lpszClassName = MATERIAL_CLASS;
+    wMaterial.hCursor       = LoadCursor(NULL, IDC_ARROW);
+
+    if (RegisterClass(&wMaterial) == 0)
+    {
+        DWORD erro = GetLastError();
+
+        if (erro == ERROR_CLASS_ALREADY_EXISTS)
+        {
+            return true;
+        }
+
+        MessageBox(
+            NULL,
+            L"RegisterClass dos Materiais falhou!",
+            L"Erro",
+            MB_OK
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+
+bool RegistraOrdens(HINSTANCE hInstance)
+{
+    WNDCLASS wOrdens = {};
+
+    wOrdens.lpfnWndProc = OrdensProc;
+    wOrdens.hInstance = hInstance;
+    wOrdens.lpszClassName = ORDENS_CLASS;
+    wOrdens.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+if (RegisterClass(&wOrdens) == 0)
+    {
+        DWORD erro = GetLastError();
+
+        if (erro == ERROR_CLASS_ALREADY_EXISTS)
+        {
+            return true;
+        }
+
+        MessageBox(
+            NULL,
+            L"RegisterClass da janela Ordens falhou!",
+            L"Erro",
+            MB_OK
+        );
+
+        return false;
+    }
+
+    return true;
+}
 
 // REGISTRA A CLASSE
 bool RegistrarProducao(HINSTANCE hInstance)
@@ -93,7 +190,6 @@ bool RegistrarProducao(HINSTANCE hInstance)
     {
         DWORD erro = GetLastError();
 
-        // Se já estiver registrada, não é necessariamente um problema.
         if (erro == ERROR_CLASS_ALREADY_EXISTS)
         {
             return true;
@@ -101,7 +197,7 @@ bool RegistrarProducao(HINSTANCE hInstance)
 
         MessageBox(
             NULL,
-            L"RegisterClass falhou!",
+            L"RegisterClass da Produção falhou!",
             L"Erro",
             MB_OK
         );
@@ -111,9 +207,6 @@ bool RegistrarProducao(HINSTANCE hInstance)
 
     return true;
 }
-
-
-
 
 // ABRE A JANELA
 void AbrirProducao(HINSTANCE hInstance)
@@ -327,30 +420,123 @@ LRESULT CALLBACK ProdProc(
                     break;
                 }
 				 
-				 /*
+				 
 				 case IDC_PTB2_BUTTON:
-					    AbrirOrdens((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-						break;
-				 
-				 
+				 {
+				        HINSTANCE hInstance =
+                        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
+
+                    HWND hwndOrdens = CreateWindowEx(
+                        0,
+                        ORDENS_CLASS,
+                        L"ORDENS_CLASS",
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT,
+                        CW_USEDEFAULT,
+                        860,
+                        600,
+                        NULL,
+                        NULL,
+                        hInstance,
+                        NULL
+						
+                    );
+
+                    if (hwndOrdens == NULL)
+                    {
+                        DWORD erro = GetLastError();
+
+                        wchar_t mensagem[256];
+
+                        wsprintf(
+                            mensagem,
+                            L"CreateWindowEx falhou!\n\n"
+                            L"Código do erro: %lu",
+                            erro
+                        );
+
+                        MessageBox(
+                            NULL,
+                            mensagem,
+                            L"Erro",
+                            MB_OK | MB_ICONERROR
+                        );
+					    
+						ShowWindow(hwndOrdens, SW_SHOW);
+                         UpdateWindow(hwndOrdens);
+				
+
+						
+						
+					}
+					     ShowWindow(hwndOrdens, SW_SHOW);
+                         UpdateWindow(hwndOrdens);
+					break;
+				 }
 				 case IDC_PTB3_BUTTON:
-					    AbrirMateriaPrima((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-						break;
-				 
+				 { 
+						HINSTANCE hInstance =
+                        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
+
+                    HWND hwndMaterial = CreateWindowEx(
+                        0,
+                        MATERIAL_CLASS,
+                        L"MATERIAL_CLASS",
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT,
+                        CW_USEDEFAULT,
+                        860,
+                        600,
+                        NULL,
+                        NULL,
+                        hInstance,
+                        NULL
+						
+                    );
+
+                    if (hwndMaterial == NULL)
+                    {
+                        DWORD erro = GetLastError();
+
+                        wchar_t mensagem[256];
+
+                        wsprintf(
+                            mensagem,
+                            L"CreateWindowEx falhou!\n\n"
+                            L"Código do erro: %lu",
+                            erro
+                        );
+
+                        MessageBox(
+                            NULL,
+                            mensagem,
+                            L"Erro",
+                            MB_OK | MB_ICONERROR
+                        );			
+						
+					}
+					 
+					 	 ShowWindow(hwndMaterial, SW_SHOW);
+                         UpdateWindow(hwndMaterial);
+					 
+					 break;
+				 }
+				 /*
 				 case IDC_PTB4_BUTTON:
 					    Removedor((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 						break;
 						
 						case IDC_PTB5_BUTTON:
 					    Consultas((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-						break; */
+						break; 
 						
 						return 0;
-				 } 
+						*/   
+				
 			 }
-			      
-	
-			return 0;
+			     
+			     return 0;
+			 }	
     }
 	
 	
